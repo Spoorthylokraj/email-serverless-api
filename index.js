@@ -1,19 +1,14 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
-const bodyParser = require("body-parser");
-
-dotenv.config();
+require("dotenv").config();
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
-// 💛 This route is for home page
 app.get("/", (req, res) => {
   res.send("Welcome to Spoorthy's Serverless Email API");
 });
 
-// 💌 This route is for sending email
 app.post("/send", async (req, res) => {
   const { to, subject, text } = req.body;
 
@@ -42,7 +37,6 @@ app.post("/send", async (req, res) => {
   }
 });
 
-// 💻 Starting the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(Server running on port ${port});
