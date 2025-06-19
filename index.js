@@ -1,27 +1,42 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
-// STEP 1: Set up transporter using your Gmail and app password
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'hlspoorthy@gmail.com', // your Gmail
-    pass: 'tnioicvwliqclvhr'       // your 16-char app password (NO SPACES)
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(bodyParser.json());
+
+app.post('/send', async (req, res) => {
+  const { to, subject, text } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER, // your gmail
+      pass: process.env.EMAIL_PASS  // your app password
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    text
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.status(200).send('Email sent successfully!');
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).send('Error sending email');
   }
 });
 
-// STEP 2: Compose the email content
-const mailOptions = {
-  from: 'hlspoorthy@gmail.com',                 // same as above
-  to: 'samrudhhl2000@gmail.com',                // recipient email
-  subject: 'Hello from Node.js 👋',
-  text: 'Hi baby! 💌 This is your test email from Node.js. Proud of you!'
-};
-
-// STEP 3: Send the email
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log('❌ Error:', error);
-  } else {
-    console.log('✅ Email sent successfully:', info.response);
-  }
+// 🟢 THIS IS THE IMPORTANT LINE TO RUN SERVER
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
