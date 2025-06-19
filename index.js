@@ -1,20 +1,27 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+
+dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+app.get("/", (req, res) => {
+  res.send("Welcome to Spoorthy's Serverless Email API");
 });
 
 app.post("/send", async (req, res) => {
   const { to, subject, text } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -31,10 +38,6 @@ app.post("/send", async (req, res) => {
     console.error("Error sending email:", error);
     res.status(500).send("Error sending email");
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("Welcome to Spoorthy's Serverless Email API");
 });
 
 const port = process.env.PORT || 3000;
